@@ -93,7 +93,7 @@ def add_unique(new_elems, group_elems):
             added += 1
     return added
 
-def check_Finite(S,N,lmax):
+def check_Finite(S,N,lmax,Verbose=True):
     ## input: S gate set in SU(d)
     ##        N a maximum power of the gate U**n to check
     ##        lmax longest length of words to check before the program terminates
@@ -106,13 +106,15 @@ def check_Finite(S,N,lmax):
         new_gates = []
         for gate in G_s[new_index:]: 
             if ball_check(gate,N):
-                print('Infinite',gate) # if it is infinite also output the gate that is part of the ball and not the center
+                if(Verbose):
+                    print('Infinite',gate) # if it is infinite also output the gate that is part of the ball and not the center
                 return [False,-1]
             for U in S:
                 new_gates.append(gate@U) 
       
         num_added = add_unique(np.array(new_gates),G_s)
-        print('l = ',l, 'current size = ', len(G_s))
+        if(Verbose):
+            print('l = ',l, 'current size = ', len(G_s))
         new_index = next_index
         next_index += num_added 
         if num_added == 0:
@@ -123,5 +125,5 @@ def check_Finite(S,N,lmax):
 def check_universal(S,N=10,lmax=100):  
     if not check_Center(S):
         return False
-    ball,number = check_Finite_eigs(S,N,lmax)
-    return ball
+    ball,number = check_Finite(S,N,lmax,Verbose=False)
+    return not(ball)
