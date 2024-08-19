@@ -3,9 +3,16 @@ import math
 
 
 def Algebra_generators(dim):
-    ## code taken from Qinfer
+    """
+    Constructs the Gell-Mann matrices
+    [TODO: what is the arxiv reference and equation number?]
+
+    :param dim: Hilbert Space dimension
+    :return: a list of dim * dim numpy arrays that are the Gell-Mann matrices
+    """
+    ## See https://github.com/QInfer/python-qinfer/blob/master/src/qinfer/tomography/bases.py
     basis = []
-    # diagonal matricies
+    # diagonal matrices
     for idx_basis in range(1, dim):
         a= np.diag(np.concatenate([
             np.ones((idx_basis, )),
@@ -26,10 +33,17 @@ def Algebra_generators(dim):
     
     return basis
 
+
 def Ad(U,G = -1):
-    ## input: U gate in SU(d)
-    ##        G generators of the lie algebra of SU(d)
-    ## ouput: The adjoint representation of U in SO(d^2-1)
+    """
+    ????
+    [TODO: what is the arxiv reference and equation number?]
+
+    :param U: U gate in SU(d)
+    :param G: G generators of the lie algebra of SU(d)
+    
+    :return: numpy arrays that is The adjoint representation of U in SO(d^2-1)
+    """
     d = U.shape[0]
     if G == -1:
         G = Algebra_generators(d)
@@ -39,10 +53,18 @@ def Ad(U,G = -1):
             Ad_U[i,j] =  np.trace(G[i]*U*G[j]*np.conj(U.T))
     return Ad_U
 
+
 def check_Center(S,G=-1):
-     ## input: S a list of gates in SU(d)
-     ##        G generators of the lie algebra of SU(d)
-     ## ouput: True if the center of the subgroup described by S contains only multiples of the identity
+    """
+    ????
+    [TODO: what is the arxiv reference and equation number?]
+
+    :param S: a list of gates in SU(d)
+    :param G: G generators of the lie algebra of SU(d)
+    
+    :return: Bool. True if the center of the subgroup described by S 
+             contains only multiples of the identity
+    """
     dim = S[0].shape[0]**2-1
     if G == -1:
         G = Algebra_generators(S[0].shape[0])
@@ -54,10 +76,18 @@ def check_Center(S,G=-1):
     dim_ker = dim**2 - np.linalg.matrix_rank(Ms)
     return dim_ker == 1
 
+
 def ball_check(gate,N):
-    ## input: gate a gate in SU(d)
-    ##        N a maximum power of the gate U**n to check
-    ## output:True if there exists a power of the gate 1<n<N such that gate^n is in B and gate^n is not the identity.
+    """
+    ????
+    [TODO: what is the arxiv reference and equation number?]
+
+    :param S: a list of gates in SU(d)
+    :param N: int, a maximum power of the gate U**n to check
+    
+    :return: Bool. True if there exists a power of the gate 1<n<N such
+             that gate^n is in B and gate^n is not the identity.
+    """
     dim = gate.shape[0]
     eig,_ = np.linalg.eig(gate) 
     for n in range(N):
@@ -68,14 +98,23 @@ def ball_check(gate,N):
                 phi = n*np.angle(eig[i])
                 eig_sum += np.sin((phi-theta)/2)**2
             if eig_sum < 1/8:
-                if not np.allclose(eig**n,eig[0]**n*np.ones(dim)): # make sure all the eigenvalues arent the same
+                # make sure all the eigenvalues arent the same
+                if not np.allclose(eig**n,eig[0]**n*np.ones(dim)): 
                     return True
     return False
 
-def test_close(A,B):
-    ## checks if two matricies A and B are close up to a relative phase
+def test_close(A, B, tol=1e-9):
+    """
+    Checks if two square matrices A and B are close up to a relative phase:
+    
+    Tr[A^\dag B] - dim
+
+    :param A: numpy array
+    :param B: numpy array
+    :return: scalar
+    """ 
     dim = B.shape[0]
-    return math.isclose(np.abs(np.trace(np.conj(A.T)@B)),dim,rel_tol=1e-9)
+    return math.isclose(np.abs(np.trace(np.conj(A.T)@B)),dim,rel_tol=tol)
 
 def add_unique(new_elems, group_elems):
     ## Brute force checks if the set of new elements are in group elems,
@@ -102,12 +141,16 @@ def check_Finite(S,N,lmax,Verbose=True):
     G_s = [np.matrix(np.eye(dim))]
     new_index = 0
     next_index = 1
-    for l in range(lmax):# check words up to length lmax starting at l = 0
+    
+    # check words up to length lmax starting at l = 0
+    for l in range(lmax):
         new_gates = []
         for gate in G_s[new_index:]: 
             if ball_check(gate,N):
                 if(Verbose):
-                    print('Infinite',gate) # if it is infinite also output the gate that is part of the ball and not the center
+                    # if it is infinite also output the gate that is part of 
+                    # the ball and not the center
+                    print('Infinite',gate) 
                 return [False,-1]
             for U in S:
                 new_gates.append(gate@U) 
