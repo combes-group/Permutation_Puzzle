@@ -4,7 +4,7 @@ import math
 def S_gate(dim):
     """
     Constructs the Qudit S gate.
-    [TODO: what is the arxiv reference and equation number?]
+    Equation (8) of https://arxiv.org/pdf/1911.08162
 
     :param dim: Hilbert Space dimension
     :return: numpy array
@@ -23,7 +23,7 @@ def S_gate(dim):
 def H_gate(dim):
     """
     Constructs the Qudit H gate.
-    [TODO: what is the arxiv reference and equation number?]
+    Equation (7) of https://arxiv.org/pdf/1911.08162
 
     :param dim: Hilbert Space dimension
     :return: numpy array
@@ -40,7 +40,6 @@ def H_gate(dim):
 def Z_gate(dim):
     """
     Constructs the Qudit Z gate.
-    [TODO: what is the arxiv reference and equation number?]
 
     :param dim: Hilbert Space dimension
     :return: numpy array
