@@ -40,7 +40,8 @@ def H_gate(dim):
 def Z_gate(dim):
     """
     Constructs the Qudit Z gate.
-
+    Equation (3) of https://arxiv.org/pdf/1603.02286
+    
     :param dim: Hilbert Space dimension
     :return: numpy array
     """
