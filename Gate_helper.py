@@ -28,8 +28,6 @@ def H_gate(dim):
     :param dim: Hilbert Space dimension
     :return: numpy array
     """
-    if dim == 2:
-        return 1/np.sqrt(2)*np.matrix([[1,1],[1,-1]])
     omega = np.exp(1j*2*np.pi/dim)
     H = np.zeros((dim,dim),dtype=complex)
     for i in range(dim):
@@ -47,3 +45,27 @@ def Z_gate(dim):
     """
     omega = np.exp(1j*2*np.pi/dim)
     return np.matrix(np.diag([omega**n for n in range(dim)]))
+
+def X_gate(dim):
+    """
+    Constructs the Qudit X gate.
+    Equation (2) of https://arxiv.org/pdf/1603.02286
+    
+    :param dim: Hilbert Space dimension
+    :return: numpy array
+    """
+    
+    X = np.zeros((dim,dim))
+    for i in range(dim):
+        X[i,i-1] = 1
+    return X
+
+def Y_gate(dim):
+    """
+    Constructs the Qudit Y gate.
+    
+    :param dim: Hilbert Space dimension
+    :return: numpy array
+    """
+    
+    return 1j*X_gate(dim)@Z_gate(dim)
