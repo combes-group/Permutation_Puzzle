@@ -124,9 +124,17 @@ def test_close(A, B, tol=1e-9):
     return math.isclose(np.abs(np.trace(np.conj(A.T)@B)),dim,rel_tol=tol)
 
 def add_unique(new_elems, group_elems):
-    ## Brute force checks if the set of new elements are in group elems,
-    ## and adds any that are not present to group_elems
-    ## returns the number of elements added
+    """
+    param: new_elems list of numpy matricies
+    param: group_elems list of numpy matricies
+    
+    
+    Brute force checks if the set of new elements are in group elems,
+    and adds any that are not present to group_elems
+    returns the number of elements added
+    
+    returns: Number of elements added
+    """
     added = 0
     for new_elem in new_elems:
         flag = False
@@ -140,10 +148,18 @@ def add_unique(new_elems, group_elems):
     return added
 
 def check_finite(S,N,lmax,verbose=True):
-    ## input: S gate set in SU(d)
-    ##        N a maximum power of the gate U**n to check
-    ##        lmax longest length of words to check before the program terminates
-    ## output:True if the subgroup spaned by S is infinite.
+    """
+    Implements step 2 and three of the algorithm from sec IV of 
+    Sawicki and Karnas 
+    https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.062303 
+    
+    :param S: gate set in SU(d) given as a list of numpy matricies
+    :param N: a maximum integer power of the gate U**n to check
+    :param lmax: Integer maximum word length of gates from gateset to enumerate
+    
+    returns: False if the subgroup spaned by S is infinite. 
+             If the group is finite it also returns the size of the group
+    """
     dim = S[0].shape[0]
     G_s = [np.matrix(np.eye(dim))]
     new_index = 0
