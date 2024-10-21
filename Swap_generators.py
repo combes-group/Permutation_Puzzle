@@ -64,4 +64,4 @@ def general_swaps(exchange_stat_1,exchange_stat_2,theta,diagonals=False):
     """ 
     Id = np.eye(6)
     Perms = swaps(exchange_stat_1,exchange_stat_2,diagonals)
-    return [np.cos(theta/2)*Id + np.sin(theta/2)*1j*P for P in Perms]
+    return [np.cos(theta)*Id + np.sin(theta)*1j*P for P in Perms]

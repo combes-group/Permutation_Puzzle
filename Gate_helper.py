@@ -44,7 +44,7 @@ def Z_gate(dim):
     :return: numpy array
     """
     omega = np.exp(1j*2*np.pi/dim)
-    return np.matrix(np.diag([omega**n for n in range(dim)]))
+    return np.matrix(np.diag([omega**n for n in range(dim)]),dtype=complex)
 
 def X_gate(dim):
     """
@@ -55,7 +55,7 @@ def X_gate(dim):
     :return: numpy array
     """
     
-    X = np.zeros((dim,dim))
+    X = np.zeros((dim,dim),dtype=complex)
     for i in range(dim):
         X[i,i-1] = 1
     return X
