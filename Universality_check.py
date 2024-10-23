@@ -1,19 +1,29 @@
 import numpy as np
 import math
 
+def valid_gateset(S):
+    """
+    :param S: a list numpy arrays
+    :return: Bool. True if everything in S is a numpy array representing a matrix in SU(d)
+    """
+    # TODO implement a check on dimension of everything in S and that its unitary!
+    return True
 
 def SO_basis(dim):
     """
     Constructs the generalized Gell-Mann matrices that form a basis of SO(dim^2-1)
-    See https://github.com/QInfer/python-qinfer/blob/master/src/qinfer/tomography/bases.py
-    adapted from def gell_mann_basis
+    Adapted from the function `gell_mann_basis` in the QInfer package:
+    https://github.com/QInfer/python-qinfer/blob/master/src/qinfer/tomography/bases.py
+
+    Also see https://mathworld.wolfram.com/GeneralizedGell-MannMatrix.html
+    
     :param dim: Hilbert Space dimension
-    :return: a list of dim * dim numpy arrays that are the Gell-Mann matrices
+    :return: a list of dim * dim numpy arrays representing the generalized Gell-Mann matrices
     """
     basis = []
     # diagonal matrices
     for idx_basis in range(1, dim):
-        a= np.diag(np.concatenate([
+        a = np.diag(np.concatenate([
             np.ones((idx_basis, )),
             [-idx_basis],
             np.zeros((dim - idx_basis - 1, ))
@@ -33,14 +43,13 @@ def SO_basis(dim):
     return basis
 
 
-def Ad(U,G = None):
+def Ad(U, G=None):
     """
     Implements Equation 4 of Sawicki and Karnas https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.062303
 
-    :param U: U gate in SU(d)
-    :param G: Basis of SO(d^2-1)
-    
-    :return: numpy arrays that is The adjoint representation of U in SO(d^2-1)
+    :param U: numpy array representing a unitary gate U in SU(d)
+    :param G: Optional basis of SO(d^2-1) generated from `SO_basis` to avoid recomputing the full basis set
+    :return: numpy array with the adjoint representation of U in SO(d^2-1)
     """
     d = U.shape[0]
     if G == None:
@@ -48,50 +57,56 @@ def Ad(U,G = None):
     Ad_U = np.matrix(np.zeros((d**2-1,d**2-1),dtype=complex))
     for i in range(d**2-1):
         for j  in range(d**2-1):
-            Ad_U[i,j] =  np.trace(G[i]*U*G[j]*np.conj(U.T))
+            # Note that the factor of -1/2 in Eq. 4 is due to their definition of
+            # inner product, and that factor is "already incorporated" into
+            # our definition of the generalized Gell-Mann matrices
+            Ad_U[i,j] =  np.trace(G[i]*U*G[j]*U.conj().T)
     return Ad_U
 
 
-def check_center(S,G=None,tol=10**-8):
+def check_center(S, tol=1e-8):
     """
     Implements Equation 10 of Sawicki and Karnas 
     https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.062303
 
-    :param S: a list of gates in SU(d)
-    :param G: G generators of the lie algebra of SU(d)
+    :param S: a list of gates in SU(d) represented as numpy arrays
     :param tol: tolerance for numerical matrix rank calculation
-    If tolerance is to low it might mistakenly believe matrix is higher rank than it is.
-    
     :return: Bool. True if the center of the subgroup described by S 
              contains only multiples of the identity
+
+    If tolerance is too low, might mistakenly believe Ms matrix is higher rank
+    than it is in which case we might mistakenly return True
     """
+    assert(valid_gateset(S))
     dim = S[0].shape[0]**2-1
-    if G == None:
-        G = SO_basis(S[0].shape[0])
+    G = SO_basis(S[0].shape[0])
     I = np.matrix(np.eye(dim))
     Ms = np.matrix(np.zeros((dim**2*len(S),dim**2),dtype=complex))
     for i,gate in enumerate(S):
-        Ms[i*dim**2:(i+1)*dim**2,:] = np.kron(I,Ad(gate,G)) - np.kron(Ad(np.conj(gate.T),G),I)
+        Ms[i*dim**2:(i+1)*dim**2,:] = np.kron(I,Ad(gate,G)) - np.kron(Ad(gate.conj().T,G),I)
         
     dim_ker = dim**2 - np.linalg.matrix_rank(Ms,tol)
     return dim_ker == 1
 
 
-def ball_check(gate,N):
+def ball_check(gate, N):
     """
     Implements Equation 17 of Sawicki and Karnas 
     https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.062303
 
-    :param S: a list of gates in SU(d)
+    :param gate: a unitary gate in SU(d) represented as a numpy array
     :param N: int, a maximum power of the gate U**n to check
-    Sawicki provides a bound on N which is shown for SU(2) in equation 19
-    This bound scales poorly with hilbert space dimension, for SU(6) it is 36398100 
-    which is impratical. Instead we allow this to be input as a free parameter. 
-    For N less than the bound it is possible that a universal gate set will 
-    incorrectly be said to be nonuniversal
+    
+    Fact 5.6. of  https://arxiv.org/abs/1609.05780 provides an explicit
+    upper bound on N, which scales exponentially with the Hilbert space dimension
+    For example, for SU(6) the upper bound on N is of order 10^7 which is impractical.
+    Instead we allow this to be input as a free parameter. 
+    Thus if N is set too low, it is possible that a universal gate set will 
+    incorrectly decided as not universal.
     
     :return: Bool. True if there exists a power of the gate 1<n<N such
-             that gate^n is in B and gate^n is not the identity.
+             that gate^n is in the ball B_{alpha_m} and gate^n is not
+             equivalant to the identity.
     """
     dim = gate.shape[0]
     eig,_ = np.linalg.eig(gate) 
@@ -103,8 +118,11 @@ def ball_check(gate,N):
                 phi = n*np.angle(eig[i])
                 eig_sum += np.sin((phi-theta)/2)**2
             if eig_sum < 1/8:
-                # make sure all the eigenvalues arent the same
-                # This is needed to determine if the matrix is a multiple of I
+                # Assuming gate is unitary, then it is proportional to the
+                # identity iff all eigenvalues are identical
+                # furthermal if all eigenvalues are identical then they must
+                # all be a multiple of the root of unity given by the Hilbert dimension 
+                # however it is sufficient to simply check they are identical
                 if not np.allclose(eig**n,eig[0]**n*np.ones(dim)): 
                     return True
     return False
@@ -125,41 +143,40 @@ def test_close(A, B, tol=1e-9):
 
 def add_unique(new_elems, group_elems):
     """
-    param: new_elems list of numpy matricies
-    param: group_elems list of numpy matricies
-    
-    
-    Brute force checks if the set of new elements are in group elems,
+    Checks if the set of new elements are in group elems,
     and adds any that are not present to group_elems
-    returns the number of elements added
     
+    param: new_elems list of numpy arrays
+    param: group_elems list of numpy arrays
     returns: Number of elements added
     """
+    def elem_in_group(elem):
+        for group_elem in group_elems:
+            if test_close(elem,group_elem):
+                return True
+        return False
+
     added = 0
     for new_elem in new_elems:
-        flag = False
-        for group_elem in group_elems:
-            if test_close(new_elem,group_elem):
-                flag = True
-                break
-        if not(flag): 
+        if not(elem_in_group(new_elem)): 
             group_elems.append(new_elem)
             added += 1
     return added
 
-def check_finite(S,N,lmax,verbose=True):
+def check_finite(S, N, lmax, verbose=True):
     """
-    Implements step 2 and three of the algorithm from sec IV of 
-    Sawicki and Karnas 
+    Implements steps 2 and 3 of the algorithm from sec IV of 
+    Sawicki and Karnas
     https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.062303 
     
-    :param S: gate set in SU(d) given as a list of numpy matricies
+    :param S: gate set in SU(d) given as a list of numpy arrays
     :param N: a maximum integer power of the gate U**n to check
-    :param lmax: Integer maximum word length of gates from gateset to enumerate
+    :param lmax: integer maximum word length of gates from gateset to enumerate
     
-    returns: False if the subgroup spaned by S is infinite. 
-             If the group is finite it also returns the size of the group
+    returns: False if the subgroup spaned by S is infinite otherwise
+             when the group is finite, returns the size of the group
     """
+    assert(valid_gateset(S))
     dim = S[0].shape[0]
     G_s = [np.matrix(np.eye(dim))]
     new_index = 0
@@ -169,26 +186,27 @@ def check_finite(S,N,lmax,verbose=True):
     for l in range(lmax):
         new_gates = []
         for gate in G_s[new_index:]: 
-            if ball_check(gate,N):
+            if ball_check(gate, N):
                 if(verbose):
                     # if it is infinite also output the gate that is part of 
                     # the ball and not the center
                     print('Infinite',gate) 
-                return (False,None)
+                return False
             for U in S:
                 new_gates.append(gate@U) 
       
-        num_added = add_unique(np.array(new_gates),G_s)
+        num_added = add_unique(np.array(new_gates), G_s)
         if(verbose):
-            print('l = ',l, 'current size = ', len(G_s))
+            print('l = ', l, 'current size = ', len(G_s))
         new_index = next_index
         next_index += num_added 
         if num_added == 0:
-            return (True,len(G_s))
-    print('Reached lmax')
-    return (True,len(G_s))
+            return len(G_s)
 
-def check_universal(S,N=10,lmax=100):  
+    print('Reached lmax')
+    return len(G_s)
+
+def check_universal(S, N=10, lmax=100, verbose=False):  
     """
     Implements the algorithm from Sec IV of of Sawicki and Karnas 
     https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.062303 
@@ -206,5 +224,5 @@ def check_universal(S,N=10,lmax=100):
     """ 
     if not check_center(S):
         return False
-    finite_bool,number = check_finite(S,N,lmax,verbose=False)
-    return not(finite_bool)
+    finite = check_finite(S, N, lmax, verbose=verbose)
+    return not(finite)

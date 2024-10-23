@@ -4,13 +4,11 @@ import math
 def S_gate(dim):
     """
     Constructs the Qudit S gate.
-    Equation (8) of https://arxiv.org/pdf/1911.08162
+    Equation 8 of https://arxiv.org/abs/1911.08162
 
     :param dim: Hilbert Space dimension
     :return: numpy array
     """
-    if dim == 2:
-        return np.matrix(np.diag([1,1j]))
     omega = np.exp(1j*2*np.pi/dim)
     S_gate = np.zeros((dim,dim),dtype=complex)
     for i in range(dim):
@@ -23,7 +21,7 @@ def S_gate(dim):
 def H_gate(dim):
     """
     Constructs the Qudit H gate.
-    Equation (7) of https://arxiv.org/pdf/1911.08162
+    Equation 7 of https://arxiv.org/abs/1911.08162
 
     :param dim: Hilbert Space dimension
     :return: numpy array
@@ -38,7 +36,7 @@ def H_gate(dim):
 def Z_gate(dim):
     """
     Constructs the Qudit Z gate.
-    Equation (3) of https://arxiv.org/pdf/1603.02286
+    Section 2 of https://arxiv.org/abs/quant-ph/9802007
     
     :param dim: Hilbert Space dimension
     :return: numpy array
@@ -49,7 +47,7 @@ def Z_gate(dim):
 def X_gate(dim):
     """
     Constructs the Qudit X gate.
-    Equation (2) of https://arxiv.org/pdf/1603.02286
+    Section 2 of https://arxiv.org/abs/quant-ph/9802007
     
     :param dim: Hilbert Space dimension
     :return: numpy array
