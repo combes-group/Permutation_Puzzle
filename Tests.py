@@ -43,6 +43,7 @@ assert (Uc.check_universal(S_t))
 dim = 3
 S_c = [Gate_helper.S_gate(dim),Gate_helper.H_gate(dim),Gate_helper.Z_gate(dim)]
 S_p = [Gate_helper.X_gate(dim),Gate_helper.Y_gate(dim),Gate_helper.Z_gate(dim)]
+S_t = [Gate_helper.S_gate(dim),Gate_helper.H_gate(dim),Gate_helper.fractional_Z_gate(dim,1/4)]
 
 ## check size of qutrit cliffords is 216
 assert (Uc.check_finite(S_c,100,20,verbose=False)==dim**3*(dim**2-1))
@@ -56,25 +57,29 @@ assert (not Uc.check_universal(S_c))
 ## Qutrit Pauli is not universal ##
 assert (not Uc.check_universal(S_p))
 
-# TODO: check universal gate set for dim 3
+## Qutrit Clifford + Z/4 is  universal ##
+assert ( Uc.check_universal(S_t))
+
 
 ## Dimension 4 ##
 dim = 4
 S_c = [Gate_helper.S_gate(dim),Gate_helper.H_gate(dim),Gate_helper.Z_gate(dim)]
 S_p = [Gate_helper.X_gate(dim),Gate_helper.Y_gate(dim),Gate_helper.Z_gate(dim)]
+S_t = [Gate_helper.S_gate(dim),Gate_helper.H_gate(dim),Gate_helper.fractional_Z_gate(dim,1/4)]
 
-## check size of qutrit cliffords is 768
+## check size of qudit cliffords is 768
 assert (Uc.check_finite(S_c,100,20,verbose=False)==768)
 
-## Size of qutrit Pauli is dim^2 ##
+## Size of qudit Pauli is dim^2 ##
 assert (Uc.check_finite(S_p,1000,10,verbose=False)==dim**2)
 
-## Qutrit Clifford is not universal ##
+## Qudit Clifford is not universal ##
 assert (not Uc.check_universal(S_c))
 
-## Qutrit Pauli is not universal ##
+## Qudit Pauli is not universal ##
 assert (not Uc.check_universal(S_p))
  
-# TODO: check universal gate set for dim 4
+## Qudit Clifford + Z/4 is  universal ##
+assert ( Uc.check_universal(S_t))
 
 print("All tests passed")

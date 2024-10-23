@@ -67,3 +67,15 @@ def Y_gate(dim):
     """
     
     return 1j*X_gate(dim)@Z_gate(dim)
+
+def fractional_Z_gate(dim,frac):
+    """
+    Constructs the Qudit Z gate.
+    Section 2 of https://arxiv.org/abs/quant-ph/9802007
+    
+    :param dim: Hilbert Space dimension
+    :param frac: power of Z gate that should be applied
+    :return: numpy array
+    """
+    omega = np.exp(1j*2*np.pi/dim)
+    return np.matrix(np.diag([omega**(n*frac) for n in range(dim)]),dtype=complex)
