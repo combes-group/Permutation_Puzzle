@@ -6,7 +6,20 @@ def valid_gateset(S):
     :param S: a list numpy arrays
     :return: Bool. True if everything in S is a numpy array representing a matrix in SU(d)
     """
-    # TODO implement a check on dimension of everything in S and that its unitary!
+    dim = S[0].shape[0]
+    for gate in S:
+        ## make sure all gates are the same dimension and square
+        if gate.shape[0] != dim or gate.shape[1] != dim:
+            return False
+        
+        ## make sure all gates are unitary
+        if not np.allclose(np.conj(np.transpose(gate))@gate,np.eye(dim)):
+            return False
+        
+        ## check if determinant is 1
+        if not np.isclose(np.linalg.det(gate),1):
+            return False
+        
     return True
 
 def SO_basis(dim):
