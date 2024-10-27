@@ -1,6 +1,7 @@
 import numpy as np
 import math
 
+## Helper functions for checking the center of the group ##
 def valid_gateset(S):
     """
     :param S: a list numpy arrays
@@ -17,7 +18,7 @@ def valid_gateset(S):
             return False
         
         ## check if determinant is 1
-        if not np.isclose(np.linalg.det(gate),1):
+        if not np.isclose(np.abs(np.linalg.det(gate)),1):
             return False
         
     return True
@@ -76,31 +77,7 @@ def Ad(U, G=None):
             Ad_U[i,j] =  np.trace(G[i]*U*G[j]*U.conj().T)
     return Ad_U
 
-
-def check_center(S, tol=1e-8):
-    """
-    Implements Equation 10 of Sawicki and Karnas 
-    https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.062303
-
-    :param S: a list of gates in SU(d) represented as numpy arrays
-    :param tol: tolerance for numerical matrix rank calculation
-    :return: Bool. True if the center of the subgroup described by S 
-             contains only multiples of the identity
-
-    If tolerance is too low, might mistakenly believe Ms matrix is higher rank
-    than it is in which case we might mistakenly return True
-    """
-    assert(valid_gateset(S))
-    dim = S[0].shape[0]**2-1
-    G = SO_basis(S[0].shape[0])
-    I = np.matrix(np.eye(dim))
-    Ms = np.matrix(np.zeros((dim**2*len(S),dim**2),dtype=complex))
-    for i,gate in enumerate(S):
-        Ms[i*dim**2:(i+1)*dim**2,:] = np.kron(I,Ad(gate,G)) - np.kron(Ad(gate.conj().T,G),I)
-        
-    dim_ker = dim**2 - np.linalg.matrix_rank(Ms,tol)
-    return dim_ker == 1
-
+## Helper functions for checking the cardinality of the group ##
 
 def ball_check(gate, N):
     """
@@ -140,6 +117,7 @@ def ball_check(gate, N):
                     return True
     return False
 
+
 def test_close(A, B, tol=1e-9):
     """
     Checks if two square matrices A and B are close up to a relative phase:
@@ -153,6 +131,7 @@ def test_close(A, B, tol=1e-9):
     """ 
     dim = B.shape[0]
     return math.isclose(np.abs(np.trace(np.conj(A.T)@B)),dim,rel_tol=tol)
+
 
 def add_unique(new_elems, group_elems):
     """
@@ -175,6 +154,33 @@ def add_unique(new_elems, group_elems):
             group_elems.append(new_elem)
             added += 1
     return added
+
+### Functions that Implement Algorithmic check of Universality ##
+
+def check_center(S, tol=1e-8):
+    """
+    Implements Equation 10 of Sawicki and Karnas 
+    https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.062303
+
+    :param S: a list of gates in SU(d) represented as numpy arrays
+    :param tol: tolerance for numerical matrix rank calculation
+    :return: Bool. True if the center of the subgroup described by S 
+             contains only multiples of the identity
+
+    If tolerance is too low, might mistakenly believe Ms matrix is higher rank
+    than it is in which case we might mistakenly return True
+    """
+    assert(valid_gateset(S))
+    dim = S[0].shape[0]**2-1
+    I = np.matrix(np.eye(dim))
+    Ms = np.matrix(np.zeros((dim**2*len(S),dim**2),dtype=complex))
+    for i,gate in enumerate(S):
+        Ms[i*dim**2:(i+1)*dim**2,:] = np.kron(I,Ad(gate)) - np.kron(Ad(gate.conj().T),I)
+        
+    dim_ker = dim**2 - np.linalg.matrix_rank(Ms,tol)
+    return dim_ker == 1
+
+
 
 def check_finite(S, N, lmax, verbose=True):
     """

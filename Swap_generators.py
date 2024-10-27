@@ -23,7 +23,7 @@ def swaps(exchange_stat_1,exchange_stat_2,diagonals=False):
     SN = exchange_stat_1*zero@zero.T + exchange_stat_2*one@one.T + five@two.T \
          +four@three.T+three@four.T+ two@five.T
 
-    SS =  exchange_stat_2*zero@zero.T +exchange_stat_1*one@one.T + five@three.T \
+    SS =  exchange_stat_2*zero@zero.T + exchange_stat_1*one@one.T + five@three.T \
          +four@two.T+two@four.T+ three@five.T
 
     SE =  exchange_stat_1*two@two.T + exchange_stat_2*three@three.T + five@one.T \
