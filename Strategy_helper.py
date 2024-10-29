@@ -173,3 +173,23 @@ def scramble_probabilities(data,depth,Costs=[1,1],Mvals = None,Pvals=None):
     # Normalizing counts to probabilities
     Z = counts/Num_scrambles
     return (Z,Mvals,Pvals)
+
+def scramble_expected_dist(data):
+    """
+    :param data: 2D numpy array of optimal values of M,P from many scrambles
+    
+    :returns Z: 2D numpy array with dimensions len(E_vals)
+    :returns E_vals: array of bins used
+    """
+    expected = data[0]/data[1]
+    Num_scrambles = len(data[0])
+    std = np.std(expected)
+    N = int(2*(Num_scrambles)**(1/3))
+    E_vals = np.linspace(1,11,N-1)
+    E_vals = np.insert(E_vals,0,0)
+    counts = np.zeros(N)
+    for i in range(N-1):
+        for datapoint in expected:
+            if (datapoint>E_vals[i] and datapoint<= E_vals[i+1]):
+                counts[i] += 1
+    return (counts/Num_scrambles,E_vals)
