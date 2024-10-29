@@ -68,13 +68,14 @@ def Ad(U, G=None):
     d = U.shape[0]
     if G == None:
         G = SO_basis(d)
-    Ad_U = np.matrix(np.zeros((d**2-1,d**2-1),dtype=complex))
+    Ad_U = np.matrix(np.zeros((d**2-1,d**2-1)))
     for i in range(d**2-1):
         for j  in range(d**2-1):
             # Note that the factor of -1/2 in Eq. 4 is due to their definition of
             # inner product, and that factor is "already incorporated" into
             # our definition of the generalized Gell-Mann matrices
-            Ad_U[i,j] =  np.trace(G[i]*U*G[j]*U.conj().T)
+            Ad_U[i,j] =  np.real(np.trace(G[i]*U*G[j]*U.conj().T))
+            # the adjoint of a unitary is real
     return Ad_U
 
 ## Helper functions for checking the cardinality of the group ##
@@ -173,7 +174,7 @@ def check_center(S, tol=1e-8):
     assert(valid_gateset(S))
     dim = S[0].shape[0]**2-1
     I = np.matrix(np.eye(dim))
-    Ms = np.matrix(np.zeros((dim**2*len(S),dim**2),dtype=complex))
+    Ms = np.matrix(np.zeros((dim**2*len(S),dim**2))) 
     for i,gate in enumerate(S):
         Ms[i*dim**2:(i+1)*dim**2,:] = np.kron(I,Ad(gate)) - np.kron(Ad(gate.conj().T),I)
         
