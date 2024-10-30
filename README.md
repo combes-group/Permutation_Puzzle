@@ -1,4 +1,4 @@
-Codebase to analyze a 2x2 quantum puzzle as described in 	arXiv:2410.22287. 
+Codebase to analyze a 2x2 quantum puzzle as described in 	[arXiv:2410.22287](https://arxiv.org/abs/2311.16089). 
 
 Permutation_universality.ipynb contains a notebook which investigates various questions of universality of the 2x2 quantum puzzle. We explicitly implement the algorithm described in Sawicki and Karnas (https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.062303). The relevant function are found in Universality_check.py. Gate_helper.py implements some useful functions for generating common qudit gates in arbitrary dimension.
 
