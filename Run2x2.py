@@ -102,7 +102,7 @@ def main():
                         total=Num_scrambles):
         dataC.append(answer)
         
-    dbfile = open("Data/Classical_2x1x1_0", 'wb')
+    dbfile = open("Data/Other_puzzle/Classical_2x1x1_0", 'wb')
          
     pickle.dump(dataC, dbfile) 
     dbfile.close()
@@ -112,7 +112,7 @@ def main():
                         total=Num_scrambles):
         dataQ.append(answer)
     
-    dbfile = open("Data/Quantum_2x1x1_0", 'wb')
+    dbfile = open("Data/Other_puzzle/Quantum_2x1x1_0", 'wb')
          
     pickle.dump(dataQ, dbfile) 
     dbfile.close()
@@ -135,7 +135,7 @@ def main():
                         total=Num_scrambles):
         dataC.append(answer)
         
-    dbfile = open("Data/Classical_2x1x1_1", 'wb')
+    dbfile = open("Data/Other_puzzle/Classical_2x1x1_1", 'wb')
          
     pickle.dump(dataC, dbfile) 
     dbfile.close()
@@ -145,7 +145,7 @@ def main():
                         total=Num_scrambles):
         dataQ.append(answer)
     
-    dbfile = open("Data/Quantum_2x1x1_1", 'wb')
+    dbfile = open("Data/Other_puzzle/Quantum_2x1x1_1", 'wb')
          
     pickle.dump(dataQ, dbfile) 
     dbfile.close()
@@ -168,7 +168,7 @@ def main():
                         total=Num_scrambles):
         dataC.append(answer)
         
-    dbfile = open("Data/Classical_2x1x1_2", 'wb')
+    dbfile = open("Data/Other_puzzle/Classical_2x1x1_2", 'wb')
          
     pickle.dump(dataC, dbfile) 
     dbfile.close()
@@ -178,7 +178,7 @@ def main():
                         total=Num_scrambles):
         dataQ.append(answer)
     
-    dbfile = open("Data/Quantum_2x1x1_2", 'wb')
+    dbfile = open("Data/Other_puzzle/Quantum_2x1x1_2", 'wb')
          
     pickle.dump(dataQ, dbfile) 
     dbfile.close()
