@@ -17,7 +17,7 @@ def valid_gateset(S):
         if not np.allclose(np.conj(np.transpose(gate))@gate,np.eye(dim)):
             return False
         
-        ## check if determinant is 1
+        ## check if determinant is |1|
         if not np.isclose(np.abs(np.linalg.det(gate)),1):
             return False
         

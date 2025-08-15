@@ -116,7 +116,40 @@ def optimal_search(scramble,move_set,Cost=[1,1],max_depth = 100):
         depth += move_cost
     return [best_depth,best_prob]
 
-def Sample_scrambles_opt(Scrambles,move_set,Cost,max_depth=100):
+def basis(Nmax,n):
+    vec = np.zeros((Nmax,1))
+    vec[n] = 1
+    return np.array(vec)
+def SWAP(Nmax,n):
+    assert(n<Nmax-1)
+    # -1 from fermionic exchange
+    mat = -1*np.eye(Nmax)
+    mat[n,n] = 0
+    mat[n+1,n+1] = 0
+    mat[n,n+1] = 1
+    mat[n+1,n] = 1
+    return mat
+
+def Q_opt_search(scramble):
+    Costs = [1,1]
+    maxdepth = 15
+    Nmax = 6
+    CS = [SWAP(Nmax,n) for n in range(Nmax-1)]
+    QS = []
+    MS = []
+    for move in CS:
+        QS.append((np.eye(Nmax) + 1j*move)/np.sqrt(2))
+        QS.append((np.eye(Nmax) - 1j*move)/np.sqrt(2))
+    return [optimal_search(scramble,QS,Costs,maxdepth),scramble]
+
+def C_opt_search(scramble):
+    Costs = [1,1]
+    maxdepth = 15
+    Nmax = 6
+    CS = [SWAP(Nmax,n) for n in range(Nmax-1)]
+    return [optimal_search(scramble,CS,Costs,maxdepth),scramble]
+
+def Sample_scrambles_opt(Scrambles,move_set,Cost,max_depth=100,Verbose=True):
     """
     :param scrambles: list of scrambled states
     :param move_set: list of allowed actions to apply to the scramble
@@ -132,7 +165,7 @@ def Sample_scrambles_opt(Scrambles,move_set,Cost,max_depth=100):
         [M,P] = optimal_search(scramble,move_set,Cost,max_depth)
         P_samples.append(P)
         M_samples.append(M)
-        if(i/len(Scrambles)%.1< (i-1)/len(Scrambles)%.1):
+        if(Verbose and (i/len(Scrambles)%.1< (i-1)/len(Scrambles)%.1)):
             print("Progress:", i/len(Scrambles))
     return [np.array(M_samples),np.array(P_samples)]
 
@@ -166,10 +199,11 @@ def scramble_probabilities(data,depth,Costs=[1,1],Mvals = None,Pvals=None):
     for j,M in enumerate(Mvals):
         marg = df.loc[df['M']==M].get('P')
         for i,p in enumerate(Pvals):
+            assert(p<=1)
             for data_point in marg:
-                if (p<=1):
-                    if (data_point > p and data_point<=Pvals[i+1]):
-                        counts[i,j]+= 1
+                if (data_point > p and data_point<=Pvals[i+1]):
+                    counts[i,j]+= 1
+                
     # Normalizing counts to probabilities
     Z = counts/Num_scrambles
     return (Z,Mvals,Pvals)
